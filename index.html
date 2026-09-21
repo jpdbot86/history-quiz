@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Η Δήμητρα μαθαίνει Ιστορία 🏛️</title>
+    
+    <!-- Εισαγωγή Canvas Confetti -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        :root {
+            --primary: #4A90E2;
+            --secondary: #F39C12;
+            --background: #F9F9F9;
+            --text: #333;
+            --correct: #2ECC71;
+            --wrong: #E74C3C;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--background);
+            color: var(--text);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .title {
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+
+        .stats {
+            display: flex;
+            gap: 15px;
+            font-size: 1.2rem;
+        }
+
+        .hearts { color: #FF4757; }
+
+        .progress-container {
+            width: 100%;
+            height: 10px;
+            background-color: #ddd;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--secondary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            max-width: 800px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .question-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            width: 100%;
+        }
+
+        .option-btn {
+            background-color: white;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .option-btn:active {
+            transform: scale(0.98);
+        }
+
+        .option-btn.correct {
+            background-color: var(--correct);
+            border-color: var(--correct);
+            color: white;
+        }
+
+        .option-btn.wrong {
+            background-color: var(--wrong);
+            border-color: var(--wrong);
+            color: white;
+        }
+
+        /* Toast Notification */
+        #toast {
+            visibility: hidden;
+            min-width: 250px;
+            margin-left: -125px;
+            background-color: #333;
+            color: #fff;
+            text-align: center;
+            border-radius: 8px;
+            padding: 16px;
+            position: fixed;
+            z-index: 1;
+            left: 50%;
+            bottom: 30px;
+            font-size: 1.1rem;
+            line-height: 1.4;
+            opacity: 0;
+            transition: opacity 0.3s, bottom 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        #toast.show {
+            visibility: visible;
+            opacity: 1;
+            bottom: 50px;
+        }
+
+        #next-btn {
+            display: none;
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.3rem;
+            border-radius: 30px;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+        }
+
+        .end-screen {
+            display: none;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="title">Η Δήμητρα μαθαίνει Ιστορία 🏛️</div>
+        <div class="stats">
+            <div class="hearts" id="lives">❤️❤️❤️</div>
+        </div>
+    </header>
+    <div class="progress-container">
+        <div class="progress-bar" id="progress"></div>
+    </div>
+
+    <main>
+        <div class="question-card" id="quiz-container">
+            <div class="question-text" id="question">Φόρτωση ερώτησης...</div>
+            <div class="options-grid" id="options"></div>
+        </div>
+        
+        <button id="next-btn" onclick="nextQuestion()">Επόμενη Ερώτηση ➔</button>
+
+        <div class="end-screen" id="end-screen">
+            <h1 id="end-message">Συγχαρητήρια!</h1>
+            <p>Ολοκλήρωσες το επίπεδο με επιτυχία.</p>
+            <button class="option-btn" style="background-color: var(--primary); color: white;" onclick="location.reload()">Από την αρχή</button>
+        </div>
+    </main>
+
+    <div id="toast"></div>
+
+    <script>
+        const historyQuizData = {
+            "level_1": [
+                {
+                    "id": 1,
+                    "question": "Ποιο φύλο κατέβηκε στην Ελλάδα γύρω στο 1100 π.Χ. και έφερε μαζί του ένα νέο μέταλλο, τον σίδηρο;",
+                    "options": ["Οι Ίωνες", "Οι Αχαιοί", "Οι Δωριείς", "Οι Αιολείς"],
+                    "correct_index": 2,
+                    "fact": "Σωστά! Οι Δωριείς είχαν όπλα από σίδηρο, που ήταν πιο γερά από τα χάλκινα."
+                },
+                {
+                    "id": 2,
+                    "question": "Πώς ονομάζονται τα δύο μεγάλα ποιήματα (έπη) που δημιούργησε ο Όμηρος;",
+                    "options": ["Θεογονία και Έργα", "Ιλιάδα και Οδύσσεια", "Αργοναυτικά και Τρωικά", "Μύθοι του Αισώπου"],
+                    "correct_index": 1,
+                    "fact": "Η Ιλιάδα μιλάει για τον Τρωικό πόλεμο και η Οδύσσεια για το ταξίδι του Οδυσσέα."
+                },
+                {
+                    "id": 3,
+                    "question": "Πώς διακοσμούσαν τα αγγεία τους οι άνθρωποι στα Γεωμετρικά Χρόνια;",
+                    "options": ["Με φωτογραφίες", "Με γεωμετρικά σχήματα (κύκλους, τρίγωνα)", "Μόνο με χρώμα", "Με ανάγλυφα λουλούδια"],
+                    "correct_index": 1,
+                    "fact": "Ζωγράφιζαν τρίγωνα, ρόμβους και κύκλους. Γι' αυτό η εποχή ονομάστηκε Γεωμετρική!"
+                }
+            ]
+        };
+
+        // State Variables
+        let currentQuestions = historyQuizData.level_1;
+        let currentIdx = 0;
+        let lives = 3;
+        let isAnswered = false;
+
+        // DOM Elements
+        const questionEl = document.getElementById('question');
+        const optionsEl = document.getElementById('options');
+        const progressEl = document.getElementById('progress');
+        const livesEl = document.getElementById('lives');
+        const nextBtn = document.getElementById('next-btn');
+        const toastEl = document.getElementById('toast');
+        const quizContainer = document.getElementById('quiz-container');
+        const endScreen = document.getElementById('end-screen');
+
+        function initQuiz() {
+            currentIdx = 0;
+            lives = 3;
+            updateLives();
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            isAnswered = false;
+            nextBtn.style.display = 'none';
+            toastEl.className = toastEl.className.replace("show", "");
+            
+            const q = currentQuestions[currentIdx];
+            questionEl.textContent = q.question;
+            optionsEl.innerHTML = '';
+
+            // Ενημέρωση Progress Bar
+            const progress = (currentIdx / currentQuestions.length) * 100;
+            progressEl.style.width = progress + '%';
+
+            q.options.forEach((opt, index) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn';
+                btn.textContent = opt;
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsEl.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btnElement) {
+            if (isAnswered) return; // Αποτροπή πολλαπλών κλικ
+            isAnswered = true;
+
+            const q = currentQuestions[currentIdx];
+            const buttons = optionsEl.children;
+
+            if (selectedIndex === q.correct_index) {
+                // Σωστή απάντηση
+                btnElement.classList.add('correct');
+                showToast("✅ " + q.fact);
+                
+                // Αν είναι η τελευταία ερώτηση, ρίξε κομφετί κατευθείαν
+                if (currentIdx === currentQuestions.length - 1) {
+                    triggerConfetti();
+                }
+            } else {
+                // Λάθος απάντηση
+                btnElement.classList.add('wrong');
+                buttons[q.correct_index].classList.add('correct'); // Δείξε το σωστό
+                lives--;
+                updateLives();
+                showToast("❌ Προσοχή: " + q.fact);
+
+                if (lives === 0) {
+                    setTimeout(() => {
+                        alert("Τέλειωσαν οι καρδούλες! Πάμε πάλι από την αρχή.");
+                        initQuiz();
+                    }, 2000);
+                    return;
+                }
+            }
+
+            nextBtn.style.display = 'block';
+        }
+
+        function nextQuestion() {
+            currentIdx++;
+            if (currentIdx < currentQuestions.length) {
+                loadQuestion();
+            } else {
+                // Τέλος επιπέδου
+                progressEl.style.width = '100%';
+                quizContainer.style.display = 'none';
+                nextBtn.style.display = 'none';
+                toastEl.className = toastEl.className.replace("show", "");
+                endScreen.style.display = 'block';
+            }
+        }
+
+        function showToast(msg) {
+            toastEl.textContent = msg;
+            toastEl.className = "show";
+        }
+
+        function updateLives() {
+            livesEl.textContent = '❤️'.repeat(lives);
+        }
+
+        function triggerConfetti() {
+            confetti({
+                particleCount: 150,
+                spread: 70,
+                origin: { y: 0.6 },
+                colors: ['#4A90E2', '#F39C12', '#2ECC71', '#E74C3C']
+            });
+        }
+
+        // Έναρξη του παιχνιδιού
+        initQuiz();
+    </script>
+</body>
+</html>
