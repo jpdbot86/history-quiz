@@ -6,7 +6,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="history.png">
     <title>Η Δήμητρα μαθαίνει Ιστορία 🏛️</title>
     
     <!-- Εισαγωγή Canvas Confetti -->
@@ -35,6 +34,66 @@
             user-select: none;
         }
 
+        /* --- STYLES ΓΙΑ ΤΟ ΑΡΧΙΚΟ ΜΕΝΟΥ --- */
+        #menu-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 20px;
+            text-align: center;
+            background-color: #e0f7fa;
+        }
+
+        .menu-title {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 10px;
+        }
+
+        .menu-subtitle {
+            font-size: 1.2rem;
+            color: #555;
+            margin-bottom: 30px;
+        }
+
+        .chapter-btn {
+            background-color: white;
+            color: var(--primary);
+            border: 3px solid var(--primary);
+            padding: 20px;
+            font-size: 1.3rem;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            width: 100%;
+            max-width: 400px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transition: transform 0.1s, background-color 0.2s;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            gap: 15px;
+        }
+
+        .chapter-btn:active {
+            transform: scale(0.96);
+            background-color: #f0f8ff;
+        }
+
+        .chapter-btn span {
+            font-size: 1.8rem;
+        }
+
+        /* --- STYLES ΓΙΑ ΤΟ QUIZ --- */
+        #quiz-ui {
+            display: none; /* Κρυφό αρχικά */
+            flex-direction: column;
+            height: 100%;
+        }
+
         header {
             background-color: var(--primary);
             color: white;
@@ -45,31 +104,12 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        .title {
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .stats {
-            display: flex;
-            gap: 15px;
-            font-size: 1.2rem;
-        }
-
+        .title { font-size: 1.2rem; font-weight: bold; }
+        .stats { display: flex; gap: 15px; font-size: 1.2rem; }
         .hearts { color: #FF4757; }
 
-        .progress-container {
-            width: 100%;
-            height: 10px;
-            background-color: #ddd;
-        }
-
-        .progress-bar {
-            height: 100%;
-            background-color: var(--secondary);
-            width: 0%;
-            transition: width 0.3s ease;
-        }
+        .progress-container { width: 100%; height: 10px; background-color: #ddd; }
+        .progress-bar { height: 100%; background-color: var(--secondary); width: 0%; transition: width 0.3s ease; }
 
         main {
             flex: 1;
@@ -94,18 +134,8 @@
             margin-bottom: 20px;
         }
 
-        .question-text {
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-            line-height: 1.4;
-        }
-
-        .options-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 15px;
-            width: 100%;
-        }
+        .question-text { font-size: 1.5rem; margin-bottom: 30px; line-height: 1.4; }
+        .options-grid { display: grid; grid-template-columns: 1fr; gap: 15px; width: 100%; }
 
         .option-btn {
             background-color: white;
@@ -119,23 +149,10 @@
             font-weight: 500;
         }
 
-        .option-btn:active {
-            transform: scale(0.98);
-        }
+        .option-btn:active { transform: scale(0.98); }
+        .option-btn.correct { background-color: var(--correct); border-color: var(--correct); color: white; }
+        .option-btn.wrong { background-color: var(--wrong); border-color: var(--wrong); color: white; }
 
-        .option-btn.correct {
-            background-color: var(--correct);
-            border-color: var(--correct);
-            color: white;
-        }
-
-        .option-btn.wrong {
-            background-color: var(--wrong);
-            border-color: var(--wrong);
-            color: white;
-        }
-
-        /* Toast Notification */
         #toast {
             visibility: hidden;
             min-width: 250px;
@@ -155,12 +172,7 @@
             transition: opacity 0.3s, bottom 0.3s;
             box-shadow: 0 4px 12px rgba(0,0,0,0.3);
         }
-
-        #toast.show {
-            visibility: visible;
-            opacity: 1;
-            bottom: 50px;
-        }
+        #toast.show { visibility: visible; opacity: 1; bottom: 50px; }
 
         #next-btn {
             display: none;
@@ -176,75 +188,132 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.2);
         }
 
-        .end-screen {
-            display: none;
-            text-align: center;
-        }
+        .end-screen { display: none; text-align: center; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="title">Η Δήμητρα μαθαίνει Ιστορία 🏛️</div>
-        <div class="stats">
-            <div class="hearts" id="lives">❤️❤️❤️</div>
-        </div>
-    </header>
-    <div class="progress-container">
-        <div class="progress-bar" id="progress"></div>
+    <!-- ΟΘΟΝΗ ΜΕΝΟΥ -->
+    <div id="menu-screen">
+        <div class="menu-title">Γεια σου Δήμητρα! 🏛️</div>
+        <div class="menu-subtitle">Επίλεξε το μάθημα της ημέρας:</div>
+        
+        <button class="chapter-btn" onclick="startQuiz('kefalaio_1_dorieis')">
+            <span>⚔️</span> Κεφ. 1: Οι Δωριείς
+        </button>
+        <button class="chapter-btn" onclick="startQuiz('kefalaio_2_apoikies')">
+            <span>⛵</span> Κεφ. 2: Ο Πρώτος Αποικισμός
+        </button>
+        <button class="chapter-btn" onclick="startQuiz('kefalaio_3_omiros')">
+            <span>📜</span> Κεφ. 3: Ο Όμηρος & οι Θεοί
+        </button>
+        <button class="chapter-btn" onclick="startQuiz('kefalaio_4_texni_grafi')">
+            <span>🏺</span> Κεφ. 4: Η Τέχνη & η Γραφή
+        </button>
     </div>
 
-    <main>
-        <div class="question-card" id="quiz-container">
-            <div class="question-text" id="question">Φόρτωση ερώτησης...</div>
-            <div class="options-grid" id="options"></div>
+    <!-- ΟΘΟΝΗ QUIZ -->
+    <div id="quiz-ui">
+        <header>
+            <div class="title" id="quiz-header-title">Κεφάλαιο...</div>
+            <div class="stats">
+                <div class="hearts" id="lives">❤️❤️❤️</div>
+            </div>
+        </header>
+        <div class="progress-container">
+            <div class="progress-bar" id="progress"></div>
         </div>
-        
-        <button id="next-btn" onclick="nextQuestion()">Επόμενη Ερώτηση ➔</button>
 
-        <div class="end-screen" id="end-screen">
-            <h1 id="end-message">Συγχαρητήρια!</h1>
-            <p>Ολοκλήρωσες το επίπεδο με επιτυχία.</p>
-            <button class="option-btn" style="background-color: var(--primary); color: white;" onclick="location.reload()">Από την αρχή</button>
-        </div>
-    </main>
+        <main>
+            <div class="question-card" id="quiz-container">
+                <div class="question-text" id="question">Φόρτωση ερώτησης...</div>
+                <div class="options-grid" id="options"></div>
+            </div>
+            
+            <button id="next-btn" onclick="nextQuestion()">Επόμενη Ερώτηση ➔</button>
+
+            <div class="end-screen" id="end-screen">
+                <h1 id="end-message">Συγχαρητήρια! 🌟</h1>
+                <p>Ολοκλήρωσες το μάθημα με επιτυχία.</p>
+                <button class="chapter-btn" style="margin: 20px auto; background-color: var(--primary); color: white; justify-content: center;" onclick="goToMenu()">
+                    Πίσω στο Μενού
+                </button>
+            </div>
+        </main>
+    </div>
 
     <div id="toast"></div>
 
     <script>
         const historyQuizData = {
-            "level_1": [
+            "kefalaio_1_dorieis": [
                 {
-                    "id": 1,
-                    "question": "Ποιο φύλο κατέβηκε στην Ελλάδα γύρω στο 1100 π.Χ. και έφερε μαζί του ένα νέο μέταλλο, τον σίδηρο;",
-                    "options": ["Οι Ίωνες", "Οι Αχαιοί", "Οι Δωριείς", "Οι Αιολείς"],
+                    "question": "Ποιο νέο μέταλλο έφεραν μαζί τους οι Δωριείς όταν κατέβηκαν στην Ελλάδα;",
+                    "options": ["Τον χαλκό", "Τον σίδηρο", "Τον χρυσό", "Τον κασσίτερο"],
+                    "correct_index": 1,
+                    "fact": "Οι Δωριείς είχαν όπλα από σίδηρο, που ήταν πολύ πιο σκληρά και γερά από τα χάλκινα των παλιότερων κατοίκων."
+                },
+                {
+                    "question": "Σε ποια περιοχή της Πελοποννήσου εγκαταστάθηκαν μόνιμα οι περισσότεροι Δωριείς;",
+                    "options": ["Στην Αθήνα", "Στην Ήπειρο", "Στη Λακωνία (Σπάρτη)", "Στη Μακεδονία"],
                     "correct_index": 2,
-                    "fact": "Σωστά! Οι Δωριείς είχαν όπλα από σίδηρο, που ήταν πιο γερά από τα χάλκινα."
+                    "fact": "Οι Δωριείς έφτασαν μέχρι την Πελοπόννησο και έχτισαν τη Σπάρτη, η οποία έγινε μια από τις πιο δυνατές πόλεις."
+                }
+            ],
+            "kefalaio_2_apoikies": [
+                {
+                    "question": "Πώς ονομάστηκε η μετακίνηση πολλών Ελλήνων προς τα παράλια της Μικράς Ασίας;",
+                    "options": ["Πρώτος ελληνικός αποικισμός", "Χρυσός Αιώνας", "Πελοποννησιακός πόλεμος", "Δεύτερος αποικισμός"],
+                    "correct_index": 0,
+                    "fact": "Επειδή τα κτήματα δεν έφταναν για όλους, πολλοί Έλληνες μπήκαν στα πλοία και πήγαν να μείνουν μόνιμα στα απέναντι παράλια."
                 },
                 {
-                    "id": 2,
-                    "question": "Πώς ονομάζονται τα δύο μεγάλα ποιήματα (έπη) που δημιούργησε ο Όμηρος;",
-                    "options": ["Θεογονία και Έργα", "Ιλιάδα και Οδύσσεια", "Αργοναυτικά και Τρωικά", "Μύθοι του Αισώπου"],
-                    "correct_index": 1,
-                    "fact": "Η Ιλιάδα μιλάει για τον Τρωικό πόλεμο και η Οδύσσεια για το ταξίδι του Οδυσσέα."
+                    "question": "Ποιο από τα παρακάτω φύλα ΔΕΝ πήγε στη Μικρά Ασία κατά τον Πρώτο Αποικισμό;",
+                    "options": ["Οι Αιολείς", "Οι Ίωνες", "Οι Δωριείς", "Οι Ρωμαίοι"],
+                    "correct_index": 3,
+                    "fact": "Οι Αιολείς πήγαν βόρεια, οι Ίωνες στη μέση (έχτισαν την Έφεσο) και οι Δωριείς στα νότια της Μικράς Ασίας."
+                }
+            ],
+            "kefalaio_3_omiros": [
+                {
+                    "question": "Πώς ονομάζονται τα δύο μεγάλα ποιήματα που έφτιαξε ο Όμηρος;",
+                    "options": ["Η Ιλιάδα και η Οδύσσεια", "Ο Μινώταυρος και ο Θησέας", "Οι Άθλοι του Ηρακλή", "Οι Μύθοι του Αισώπου"],
+                    "correct_index": 0,
+                    "fact": "Τα ποιήματα αυτά (έπη) τα τραγουδούσαν οι αοιδοί στα παλάτια για να διασκεδάζουν τους βασιλιάδες."
                 },
                 {
-                    "id": 3,
-                    "question": "Πώς διακοσμούσαν τα αγγεία τους οι άνθρωποι στα Γεωμετρικά Χρόνια;",
-                    "options": ["Με φωτογραφίες", "Με γεωμετρικά σχήματα (κύκλους, τρίγωνα)", "Μόνο με χρώμα", "Με ανάγλυφα λουλούδια"],
+                    "question": "Πού πίστευαν οι αρχαίοι Έλληνες ότι κατοικούσαν οι 12 θεοί τους;",
+                    "options": ["Στην Ακρόπολη της Αθήνας", "Στον Όλυμπο", "Στη θάλασσα", "Στον κάτω κόσμο"],
                     "correct_index": 1,
-                    "fact": "Ζωγράφιζαν τρίγωνα, ρόμβους και κύκλους. Γι' αυτό η εποχή ονομάστηκε Γεωμετρική!"
+                    "fact": "Ο Όλυμπος είναι το ψηλότερο βουνό της Ελλάδας. Πίστευαν ότι εκεί οι θεοί έπιναν νέκταρ και έτρωγαν αμβροσία."
+                }
+            ],
+            "kefalaio_4_texni_grafi": [
+                {
+                    "question": "Από ποιον λαό πήραν το αλφάβητο οι αρχαίοι Έλληνες;",
+                    "options": ["Από τους Πέρσες", "Από τους Αιγύπτιους", "Από τους Φοίνικες", "Από τους Ρωμαίους"],
+                    "correct_index": 2,
+                    "fact": "Πήραν το φοινικικό αλφάβητο, του πρόσθεσαν φωνήεντα (α, ε, ι, ο, ω) και έφτιαξαν το ελληνικό αλφάβητο!"
+                },
+                {
+                    "question": "Τι ζωγράφιζαν πάνω στα αγγεία τους εκείνη την εποχή (Γεωμετρικά Χρόνια);",
+                    "options": ["Μόνο λουλούδια", "Κύκλους, τρίγωνα και ρόμβους", "Αληθινές φωτογραφίες", "Μόνο μαύρο χρώμα"],
+                    "correct_index": 1,
+                    "fact": "Επειδή στόλιζαν τα αγγεία με γεωμετρικά σχήματα, η εποχή αυτή ονομάστηκε «Γεωμετρική Εποχή»."
                 }
             ]
         };
 
         // State Variables
-        let currentQuestions = historyQuizData.level_1;
+        let currentQuestions = [];
         let currentIdx = 0;
         let lives = 3;
         let isAnswered = false;
 
         // DOM Elements
+        const menuScreen = document.getElementById('menu-screen');
+        const quizUi = document.getElementById('quiz-ui');
+        const quizHeaderTitle = document.getElementById('quiz-header-title');
         const questionEl = document.getElementById('question');
         const optionsEl = document.getElementById('options');
         const progressEl = document.getElementById('progress');
@@ -254,11 +323,35 @@
         const quizContainer = document.getElementById('quiz-container');
         const endScreen = document.getElementById('end-screen');
 
-        function initQuiz() {
+        const chapterTitles = {
+            "kefalaio_1_dorieis": "Κεφ. 1: Οι Δωριείς",
+            "kefalaio_2_apoikies": "Κεφ. 2: Ο Αποικισμός",
+            "kefalaio_3_omiros": "Κεφ. 3: Ο Όμηρος",
+            "kefalaio_4_texni_grafi": "Κεφ. 4: Τέχνη & Γραφή"
+        };
+
+        function startQuiz(chapterKey) {
+            currentQuestions = historyQuizData[chapterKey];
+            quizHeaderTitle.textContent = chapterTitles[chapterKey];
+            
+            // Εναλλαγή Οθονών
+            menuScreen.style.display = 'none';
+            quizUi.style.display = 'flex';
+            
+            // Επαναφορά UI του Quiz
+            quizContainer.style.display = 'block';
+            endScreen.style.display = 'none';
+
             currentIdx = 0;
             lives = 3;
             updateLives();
             loadQuestion();
+        }
+
+        function goToMenu() {
+            // Επιστροφή στην αρχική
+            quizUi.style.display = 'none';
+            menuScreen.style.display = 'flex';
         }
 
         function loadQuestion() {
@@ -284,38 +377,34 @@
         }
 
         function checkAnswer(selectedIndex, btnElement) {
-            if (isAnswered) return; // Αποτροπή πολλαπλών κλικ
+            if (isAnswered) return;
             isAnswered = true;
 
             const q = currentQuestions[currentIdx];
             const buttons = optionsEl.children;
 
             if (selectedIndex === q.correct_index) {
-                // Σωστή απάντηση
                 btnElement.classList.add('correct');
                 showToast("✅ " + q.fact);
                 
-                // Αν είναι η τελευταία ερώτηση, ρίξε κομφετί κατευθείαν
                 if (currentIdx === currentQuestions.length - 1) {
                     triggerConfetti();
                 }
             } else {
-                // Λάθος απάντηση
                 btnElement.classList.add('wrong');
-                buttons[q.correct_index].classList.add('correct'); // Δείξε το σωστό
+                buttons[q.correct_index].classList.add('correct');
                 lives--;
                 updateLives();
                 showToast("❌ Προσοχή: " + q.fact);
 
                 if (lives === 0) {
                     setTimeout(() => {
-                        alert("Τέλειωσαν οι καρδούλες! Πάμε πάλι από την αρχή.");
-                        initQuiz();
-                    }, 2000);
+                        alert("Τέλειωσαν οι καρδούλες! Επιστροφή στο μενού.");
+                        goToMenu();
+                    }, 2500);
                     return;
                 }
             }
-
             nextBtn.style.display = 'block';
         }
 
@@ -324,7 +413,6 @@
             if (currentIdx < currentQuestions.length) {
                 loadQuestion();
             } else {
-                // Τέλος επιπέδου
                 progressEl.style.width = '100%';
                 quizContainer.style.display = 'none';
                 nextBtn.style.display = 'none';
@@ -350,9 +438,6 @@
                 colors: ['#4A90E2', '#F39C12', '#2ECC71', '#E74C3C']
             });
         }
-
-        // Έναρξη του παιχνιδιού
-        initQuiz();
     </script>
 </body>
 </html>
